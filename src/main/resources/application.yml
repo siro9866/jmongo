@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: jmongo
+  #  profiles.active: real  # run configuration 에서 local주입해서 사용
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+      
+  messages:
+    basename: messages/message,messages/validation
+    encoding: UTF-8
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  data:
+    mongodb:
+      uri: mongodb://dbuser:dbpassword@localhost:27017/jmongo?authSource=admin
+
+  # MongoDB 연결 실패 시에도 애플리케이션이 계속 시작되도록 허용 여부
+  main:
+    allow-bean-definition-overriding: true
+
+  jwt:
+#    secret: ENC(p+UGISqjN1rTvSRsmxNLIM4v1EELgzL6Lw7H4+LCJT7q5zIdLcohcX8xUjycwcH7PGcZi3lpfuZBzt8elTwJMQ4hzhsAwf1r)   # 토큰 암호화 보안키
+    secret: ThisIsSeowonFrameworkAndThisFrameworkIsBorn20250101ByDev3   # 토큰 암호화 보안키
+    access:
+      expiration: 10	# access토큰 만료시간(second)
+    refresh:
+      expiration: 86400	# refresh토큰 만료시간(second)
+
+  servlet:
+    multipart:
+      maxFileSize: 10MB # 파일 하나의 최대 크기
+      maxRequestSize: 30MB  # 한 번에 최대 업로드 가능 용량
+
+# SWAGGER 설정
+springdoc:
+  packages-to-scan: com.sil.jmongo
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: DESC
+    operationsSorter: method
+    disable-swagger-default-url: true
+    display-request-duration: true
+    tags-sorter: alpha
+    doc-expansion : none
+    defaultModelsExpandDepth: -1
+  api-docs:
+    path: /api
+    show-actuator: true
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  paths-to-match:
+  show-login-endpoint: true	# 로그인은 security UsernamePasswordAuthenticationFilter라 실제url 이 없어서 swagger에 나타나도록 설정
+  override-with-generic-response: false # restcontrollerAdvice 와 관련 오류나서 처리(버전 많이탄다 boot와 swagger 버전 호환 확인필수)
+
+
+logging:
+  level:
+    root: info
+    com.sil.jmongo: debug
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+
+custom:
+  format:
+    date: yyyy-MM-dd
+    dateStr: yyyyMMdd
+    datetime: yyyy-MM-dd HH:mm:ss.SS
+    datetimeStr: yyyyMMddHHmmss
+
+  # 파일암호화
+  jasypt:
+    encryptor:
+      key: sil
+
+  server:
+    host:
+      api: http://localhost:8080
+      front: http://localhost:3000
