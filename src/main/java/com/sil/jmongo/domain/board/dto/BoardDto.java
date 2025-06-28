@@ -95,7 +95,6 @@ public class BoardDto {
                     .createdAt(board.getCreatedAt())
                     .modifiedBy(board.getModifiedBy())
                     .modifiedAt(board.getModifiedAt())
-                    .enabled(board.isEnabled())
                     .build();
         }
     }

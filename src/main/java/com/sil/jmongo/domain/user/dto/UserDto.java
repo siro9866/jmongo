@@ -142,7 +142,6 @@ public class UserDto {
                     .createdAt(user.getCreatedAt())
                     .modifiedBy(user.getModifiedBy())
                     .modifiedAt(user.getModifiedAt())
-                    .enabled(user.isEnabled())
                     .build();
         }
     }
