@@ -31,14 +31,14 @@ public class CommentController {
     @Operation(summary = "댓글 등록", description = "댓글 등록")
     @PostMapping
     public ResponseEntity<CommentDto.Response> createBoard(@ParameterObject @ModelAttribute @Valid CommentDto.CreateRequest request) {
-        commentService.createComment(request);
-        return ResponseEntity.ok(null);
+        CommentDto.Response comment = commentService.createComment(request);
+        return ResponseEntity.ok(comment);
     }
 
     @Operation(summary = "댓글 수정", description = "댓글 수정")
     @PutMapping("/{id}")
-    public ResponseEntity<CommentDto.Response> modifyBoard(@PathVariable String id
-    , @ParameterObject @ModelAttribute @Valid CommentDto.ModifyRequest request) {
+    public ResponseEntity<CommentDto.Response> modifyBoard(@PathVariable String id,
+        @ParameterObject @ModelAttribute @Valid CommentDto.ModifyRequest request) {
         commentService.modifyComment(id, request);
         return ResponseEntity.ok(null);
     }

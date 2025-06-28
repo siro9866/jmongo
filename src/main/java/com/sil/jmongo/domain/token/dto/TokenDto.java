@@ -10,10 +10,6 @@ public class TokenDto {
 
 	@Getter
 	@Setter
-	@NoArgsConstructor
-	@AllArgsConstructor
-	@Builder
-	@ToString
 	public static class CreateRequest {
 		private String username;
 		private String refreshToken;

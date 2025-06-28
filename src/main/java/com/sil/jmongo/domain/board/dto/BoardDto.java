@@ -5,7 +5,9 @@ import com.sil.jmongo.global.code.BoardType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -15,10 +17,6 @@ public class BoardDto {
      */
     @Getter
     @Setter
-    @ToString
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class CreateRequest {
 
         @Schema(description = "제목")
@@ -46,10 +44,6 @@ public class BoardDto {
      */
     @Getter
     @Setter
-    @ToString
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class ModifyRequest {
 
         @Schema(description = "제목")
@@ -68,10 +62,7 @@ public class BoardDto {
 
     @Getter
     @Setter
-    @ToString
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Response {
         private String id;
         private String boardType;   // 게시판유형
@@ -105,10 +96,6 @@ public class BoardDto {
      */
     @Getter
     @Setter
-    @ToString
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Search {
 
         @Schema(description = "제목, 내용 중 하나")

@@ -16,18 +16,13 @@ public class UserDto {
 
     @Getter
     @Setter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class LoginRequest {
         private String username;
         private String password;
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Getter
+    @Setter
     public static class LoginResponse {
         private String token;
         private String username;
@@ -47,10 +42,6 @@ public class UserDto {
      */
     @Getter
     @Setter
-    @ToString
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class CreateRequest {
 
         @Schema(description = "아이디")
@@ -88,10 +79,6 @@ public class UserDto {
      */
     @Getter
     @Setter
-    @ToString
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class ModifyRequest {
 
         @NotBlank @Size(max = 50)
@@ -109,10 +96,7 @@ public class UserDto {
 
     @Getter
     @Setter
-    @ToString
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Response {
         private String id;
         private String username;    // 아이디
@@ -152,10 +136,6 @@ public class UserDto {
      */
     @Getter
     @Setter
-    @ToString
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Search {
 
         @Schema(description = "아이디, 이름, 이메일 중 하나")

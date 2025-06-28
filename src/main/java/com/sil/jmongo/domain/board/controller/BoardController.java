@@ -38,8 +38,8 @@ public class BoardController {
     @Operation(summary = "게시판등록", description = "게시판등록")
     @PostMapping
     public ResponseEntity<BoardDto.Response> createBoard(@ParameterObject @ModelAttribute @Valid BoardDto.CreateRequest request) {
-        boardService.createBoard(request);
-        return ResponseEntity.ok(null);
+        BoardDto.Response board = boardService.createBoard(request);
+        return ResponseEntity.ok(board);
     }
 
     @Operation(summary = "게시판수정", description = "게시판수정")
