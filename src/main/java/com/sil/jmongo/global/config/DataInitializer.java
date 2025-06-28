@@ -1,7 +1,6 @@
 package com.sil.jmongo.global.config;
 
 import com.sil.jmongo.domain.user.dto.UserDto;
-import com.sil.jmongo.domain.user.entity.User;
 import com.sil.jmongo.domain.user.repository.UserRepository;
 import com.sil.jmongo.global.code.RoleCode;
 import lombok.RequiredArgsConstructor;

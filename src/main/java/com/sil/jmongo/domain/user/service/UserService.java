@@ -40,6 +40,7 @@ public class UserService {
         return UserDto.Response.toDto(user);
     }
 
+    // 사용자전체 조회하기
     public List<UserDto.Response> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(UserDto.Response::toDto)

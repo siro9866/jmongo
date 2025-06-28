@@ -98,8 +98,8 @@ public class SecurityConfig {
 							, "/api/**"
 							, "/global/**"
 					).permitAll()
-					.requestMatchers("/api/admin").hasRole("ADMIN")
-					.requestMatchers("/api/member/**").hasRole("MEMBER")
+//					.requestMatchers("/api/admin").hasRole("ADMIN")
+//					.requestMatchers("/api/user/**").hasRole("USER")
 					.anyRequest().authenticated());
 		
 		// JWT 관련 필터 설정 및 예외 처리
