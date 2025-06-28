@@ -30,24 +30,24 @@ public class UserController {
     }
 
     @Operation(summary = "회원상세", description = "회원상세")
-    @GetMapping("/{username}")
-    public ResponseEntity<UserDto.Response> detailUser(@PathVariable String username) {
-        UserDto.Response user = userService.detailUser(username);
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDto.Response> detailUser(@PathVariable String id) {
+        UserDto.Response user = userService.detailUser(id);
         return ResponseEntity.ok(user);
     }
 
     @Operation(summary = "회원수정", description = "회원수정")
-    @PutMapping("/{username}")
-    public ResponseEntity<UserDto.Response> modifyUser(@PathVariable String username
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto.Response> modifyUser(@PathVariable String id
     , @ParameterObject @ModelAttribute @Valid UserDto.ModifyRequest request) {
-        userService.modifyUser(username, request);
+        userService.modifyUser(id, request);
         return ResponseEntity.ok(null);
     }
 
     @Operation(summary = "회원삭제", description = "회원삭제")
-    @DeleteMapping("/{username}")
-    public ResponseEntity<UserDto.Response> deleteUser(@PathVariable String username) {
-        userService.deleteUser(username);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<UserDto.Response> deleteUser(@PathVariable String id) {
+        userService.deleteUser(id);
         return ResponseEntity.ok(null);
     }
 }

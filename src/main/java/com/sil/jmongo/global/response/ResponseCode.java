@@ -25,7 +25,7 @@ public enum ResponseCode {
 	, JWT_REFRESHTOKEN_EXPIRED("1202", "리프레쉬토큰 만료")
 	, JWT_REFRESHTOKEN_INVALID("1203", "리프레쉬토큰 유효하지않음")
 	, JWT_REFRESHTOKEN_NODATA("1204", "리프레쉬토큰 DB에 없음")
-	, EXCEPTION_GET_NODATA("1205", "조회된 데이타없음")
+	, EXCEPTION_NODATA("1205", "조회된 데이타없음")
 
 	;
 

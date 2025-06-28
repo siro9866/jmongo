@@ -1,8 +1,8 @@
-package com.sil.jmongo.domain.user.service;
+package com.sil.jmongo.domain.board.service;
 
-import com.sil.jmongo.domain.user.dto.UserDto;
-import com.sil.jmongo.domain.user.entity.User;
-import com.sil.jmongo.domain.user.repository.UserRepository;
+import com.sil.jmongo.domain.board.dto.BoardDto;
+import com.sil.jmongo.domain.board.entity.Board;
+import com.sil.jmongo.domain.board.repository.BoardRepository;
 import com.sil.jmongo.global.exception.CustomException;
 import com.sil.jmongo.global.response.ResponseCode;
 import com.sil.jmongo.global.util.UtilCommon;
@@ -13,7 +13,6 @@ import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,11 +24,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class BoardService {
 
     private final MongoTemplate mongoTemplate;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final BoardRepository boardRepository;
     private final UtilMessage utilMessage;
 
     /**
@@ -37,21 +35,20 @@ public class UserService {
      * @param search
      * @return
      */
-    public Page<UserDto.Response> listUser(UserDto.Search search) {
+    public Page<BoardDto.Response> listBoard(BoardDto.Search search) {
         Query query = new Query();
 
-        // 🔍 키워드 like 검색 (username, email, name 중 하나라도 포함)
+        // 🔍 키워드 like 검색 (boardname, email, name 중 하나라도 포함)
         if (UtilCommon.isNotEmpty(search.getKeyword())) {
             String keyword = search.getKeyword();
             Criteria keywordCriteria = new Criteria().orOperator(
-                    Criteria.where("username").regex(keyword, "i"),
-                    Criteria.where("email").regex(keyword, "i"),
-                    Criteria.where("name").regex(keyword, "i")
+                    Criteria.where("title").regex(keyword, "i"),
+                    Criteria.where("content").regex(keyword, "i")
             );
             query.addCriteria(keywordCriteria);
         }
 
-        // 📅 가입일자 조건
+        // 📅 등록일자 조건
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         if (UtilCommon.isNotEmpty(search.getFromDate()) && UtilCommon.isNotEmpty(search.getToDate())) {
             LocalDateTime from = LocalDate.parse(search.getFromDate(), formatter).atStartOfDay();
@@ -65,12 +62,12 @@ public class UserService {
         query.with(pageable);
 
         // ✨ 실행
-        List<User> users = mongoTemplate.find(query, User.class);
-        long total = mongoTemplate.count(Query.of(query).limit(-1).skip(-1), User.class);
+        List<Board> boards = mongoTemplate.find(query, Board.class);
+        long total = mongoTemplate.count(Query.of(query).limit(-1).skip(-1), Board.class);
 
         // DTO 변환
-        List<UserDto.Response> content = users.stream()
-                .map(UserDto.Response::toDto)
+        List<BoardDto.Response> content = boards.stream()
+                .map(BoardDto.Response::toDto)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(content, pageable, total);
@@ -81,10 +78,10 @@ public class UserService {
      * @param id
      * @return
      */
-    public UserDto.Response detailUser(String id) {
-        User user = userRepository.findById(id)
+    public BoardDto.Response detailBoard(String id) {
+        Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
-        return UserDto.Response.toDto(user);
+        return BoardDto.Response.toDto(board);
     }
 
     /**
@@ -92,15 +89,9 @@ public class UserService {
      * @param request
      * @return
      */
-    public UserDto.Response createUser(UserDto.CreateRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException(utilMessage.getMessage("duplicate.username", null));
-        }
-
-        // 엔티티로 변환하기 전에 비밀번호 암호화
-        request.setPassword(passwordEncoder.encode(request.getPassword()));
-        User savedUser = userRepository.save(request.toEntity());
-        return UserDto.Response.toDto(savedUser);
+    public BoardDto.Response createBoard(BoardDto.CreateRequest request) {
+        Board savedBoard = boardRepository.save(request.toEntity());
+        return BoardDto.Response.toDto(savedBoard);
     }
 
     /**
@@ -108,22 +99,22 @@ public class UserService {
      * @param id
      * @param request
      */
-    public void modifyUser(String id, UserDto.ModifyRequest request) {
-        User user = userRepository.findById(id)
+    public void modifyBoard(String id, BoardDto.ModifyRequest request) {
+        Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
-        request.modifyUser(user);
+        request.modifyBoard(board);
 
         // MongoDB에 명시적으로 저장
-        userRepository.save(user);
+        boardRepository.save(board);
     }
 
     /**
      * 삭제
      * @param id
      */
-    public void deleteUser(String id) {
-        User user = userRepository.findById(id)
+    public void deleteBoard(String id) {
+        Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
-        userRepository.deleteById(user.getId());
+        boardRepository.deleteById(board.getId());
     }
 }

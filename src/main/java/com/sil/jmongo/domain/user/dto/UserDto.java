@@ -53,6 +53,7 @@ public class UserDto {
     @AllArgsConstructor
     public static class CreateRequest {
 
+        @Schema(description = "아이디")
         @NotBlank @Size(max = 20)
         private String username;    // 아이디
 
@@ -77,7 +78,7 @@ public class UserDto {
                     .name(name)
                     .email(email)
                     .role(role)
-                    .joinAt(LocalDateTime.now())
+                    .joinedAt(LocalDateTime.now())
                     .build();
         }
     }
@@ -119,8 +120,8 @@ public class UserDto {
         private String name;        // 이름
         private String email;       // 이메일
         private String role;        // 롤
-        private LocalDateTime joinAt; // 가입일시
-        private LocalDateTime signAt; // 로그인일시
+        private LocalDateTime joinedAt; // 가입일시
+        private LocalDateTime signedAt; // 로그인일시
         private boolean enabled;        // 로그인가능
 
         private String createdBy;
@@ -135,8 +136,8 @@ public class UserDto {
                     .name(user.getName())
                     .email(user.getEmail())
                     .role(user.getRole())
-                    .joinAt(user.getJoinAt())
-                    .signAt(user.getSignAt())
+                    .joinedAt(user.getJoinedAt())
+                    .signedAt(user.getSignedAt())
                     .createdBy(user.getCreatedBy())
                     .createdAt(user.getCreatedAt())
                     .modifiedBy(user.getModifiedBy())
@@ -161,10 +162,10 @@ public class UserDto {
         @Schema(description = "아이디, 이름, 이메일 중 하나")
         private String keyword;
 
-        @Schema(description = "가입일 시작 (yyyyMMdd)", example = "20250101")
+        @Schema(description = "등록일 시작 (yyyyMMdd)", example = "20250101")
         private String fromDate;
 
-        @Schema(description = "가입일 종료 (yyyyMMdd)", example = "20301231")
+        @Schema(description = "등록일 종료 (yyyyMMdd)", example = "20301231")
         private String toDate;
 
         @Schema(description = "페이지 번호 (0부터 시작)", example = "0", defaultValue = "0")
@@ -173,8 +174,8 @@ public class UserDto {
         @Schema(description = "페이지 크기", example = "10", defaultValue = "10")
         private int size = 10;
 
-        @Schema(description = "정렬 기준 필드", example = "joinAt", defaultValue = "joinAt")
-        private String sortBy = "joinAt";
+        @Schema(description = "정렬 기준 필드", example = "createdAt", defaultValue = "createdAt")
+        private String sortBy = "createdAt";
 
         @Schema(description = "내림차순 여부", example = "true", defaultValue = "true")
         private boolean desc = true;

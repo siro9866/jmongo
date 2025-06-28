@@ -24,9 +24,9 @@ public class User extends Base {
     private String name;        // 이름
     private String email;       // 이메일
     private String role;        // 롤
-    private LocalDateTime joinAt; // 가입일시
-    private LocalDateTime signAt; // 로그인일시
+    private LocalDateTime joinedAt; // 가입일시
+    private LocalDateTime signedAt; // 로그인일시
     @Builder.Default
-    private boolean enabled = true;        // 로그인가능
+    private boolean enabled = true; // 활성화여부
 
 }
