@@ -7,11 +7,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -24,7 +22,9 @@ public class AuthController {
 
     @Operation(summary = "회원가입", description = "회원가입")
     @PostMapping("/register")
-    public ResponseEntity<UserDto.Response> register(@RequestBody @Valid UserDto.CreateRequest userRequest) {
+    public ResponseEntity<UserDto.Response> register(@ParameterObject @ModelAttribute @Valid UserDto.CreateRequest userRequest) {
+        // SWAGGER에 form타입으로 나오려고 위처럼변경함 @RequestBody @Valid UserDto.CreateRequest
+        log.debug(userRequest.toString());
         UserDto.Response response = userService.createUser(userRequest);
         return ResponseEntity.ok(response);
     }

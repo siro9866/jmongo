@@ -2,6 +2,7 @@ package com.sil.jmongo.domain.user.dto;
 
 import com.sil.jmongo.domain.user.entity.User;
 import com.sil.jmongo.global.code.RoleCode;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -15,6 +16,34 @@ public class UserDto {
 
     @Getter
     @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LoginRequest {
+        private String username;
+        private String password;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LoginResponse {
+        private String token;
+        private String username;
+        private String role;
+
+        public User toEntity() {
+            return User.builder()
+                    .username(username)
+                    .role(role)
+                    .build();
+        }
+
+    }
+
+    @Getter
+    @Setter
     @ToString
     @Builder
     @NoArgsConstructor
@@ -24,6 +53,7 @@ public class UserDto {
         @NotBlank @Size(max = 20)
         private String username;    // 아이디
 
+        @Schema(description = "비밀번호", example = "1234")
         @NotBlank @Size(max = 20)
         private String password;    // 비밀번호
 
@@ -34,6 +64,7 @@ public class UserDto {
         @Pattern(regexp = EMAIL_FORMAT, message = "{validation.email}")
         private String email;       // 이메일
 
+        @Schema(description = "권한", example = "ROLE_USER")
         private String role = RoleCode.ROLE_USER.name();        // 롤
 
         public User toEntity() {
@@ -88,31 +119,38 @@ public class UserDto {
         }
     }
 
+
+    /**
+     * 조회조건
+     */
     @Getter
     @Setter
+    @ToString
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class LoginRequest {
-        private String username;
-        private String password;
+    public static class Search {
+
+        @Schema(description = "아이디, 이름, 이메일 중 하나")
+        private String keyword;
+
+        @Schema(description = "가입일 시작 (yyyyMMdd)", example = "20250101")
+        private String fromDate;
+
+        @Schema(description = "가입일 종료 (yyyyMMdd)", example = "20301231")
+        private String toDate;
+
+        @Schema(description = "페이지 번호 (0부터 시작)", example = "0", defaultValue = "0")
+        private int page = 0;
+
+        @Schema(description = "페이지 크기", example = "10", defaultValue = "10")
+        private int size = 10;
+
+        @Schema(description = "정렬 기준 필드", example = "joinAt", defaultValue = "joinAt")
+        private String sortBy = "joinAt";
+
+        @Schema(description = "내림차순 여부", example = "true", defaultValue = "true")
+        private boolean desc = true;
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class LoginResponse {
-        private String token;
-        private String username;
-        private String role;
-
-        public User toEntity() {
-            return User.builder()
-                    .username(username)
-                    .role(role)
-                    .build();
-        }
-
-    }
 }

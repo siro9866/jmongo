@@ -124,7 +124,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setContentType("application/json;charset=UTF-8");
 
         Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("data", null);
+//        responseBody.put("data", null);
 
         PrintWriter writer = response.getWriter();
         writer.write(new ObjectMapper().writeValueAsString(responseBody));

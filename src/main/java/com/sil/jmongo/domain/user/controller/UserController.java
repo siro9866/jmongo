@@ -2,17 +2,14 @@ package com.sil.jmongo.domain.user.controller;
 
 import com.sil.jmongo.domain.user.dto.UserDto;
 import com.sil.jmongo.domain.user.service.UserService;
-import com.sil.jmongo.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -26,15 +23,15 @@ public class UserController {
     @Operation(summary = "회원목록", description = "회원목록")
     @GetMapping
 //    @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<UserDto.Response>> getUsersPage() {
-        List<UserDto.Response> users = userService.getAllUsers();
-        return new ApiResponse<>(users);
+    public ResponseEntity<Page<UserDto.Response>> getUserList(@ParameterObject @ModelAttribute UserDto.Search search) {
+        Page<UserDto.Response> users = userService.getUserList(search);
+        return ResponseEntity.ok(users);
     }
 
     @Operation(summary = "회원상세", description = "회원상세")
     @GetMapping("/{username}")
-    public ApiResponse<UserDto.Response> getUserByUsername(@PathVariable String username) {
-        UserDto.Response user = userService.getUserByUsername(username);
-        return new ApiResponse<>(user);
+    public ResponseEntity<UserDto.Response> getUserDetail(@PathVariable String username) {
+        UserDto.Response user = userService.getUserDetail(username);
+        return ResponseEntity.ok(user);
     }
 }
