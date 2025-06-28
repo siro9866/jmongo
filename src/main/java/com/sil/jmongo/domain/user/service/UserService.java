@@ -5,13 +5,14 @@ import com.sil.jmongo.domain.user.entity.User;
 import com.sil.jmongo.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,14 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
         return UserDto.Response.toDto(user);
     }
+
+    public Page<UserDto.Response> getPagedUsers(int page, int size, String sortField, boolean isDesc) {
+        Sort.Direction direction = isDesc ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+        Page<User> userPage = userRepository.findAll(pageable);
+        return userPage.map(UserDto.Response::toDto);
+    }
+
 
     // 사용자전체 조회하기
     public List<UserDto.Response> getAllUsers() {
