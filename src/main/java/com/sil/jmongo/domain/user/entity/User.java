@@ -1,17 +1,15 @@
 package com.sil.jmongo.domain.user.entity;
 
 import com.sil.jmongo.global.entity.Base;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 
 @Getter
 @Builder
@@ -30,6 +28,7 @@ public class User extends Base {
     private String role;        // 롤
     private LocalDateTime joinAt; // 가입일시
     private LocalDateTime signAt; // 로그인일시
+    @Builder.Default
     private boolean enabled = true;        // 로그인가능
 
 }

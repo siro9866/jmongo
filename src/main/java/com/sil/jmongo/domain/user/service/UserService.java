@@ -28,6 +28,8 @@ public class UserService {
             throw new RuntimeException("Username already exists");
         }
 
+        // 엔티티로 변환하기 전에 비밀번호 암호화
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         User savedUser = userRepository.save(userDto.toEntity());
         return UserDto.Response.toDto(savedUser);
     }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,11 +20,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "tokens")
-public class Tokens extends Base {
+public class Tokens {
 	
 	@Id
 	private String id;
 	private String username;
 	private String refreshToken;	// 리프레쉬토큰
 	private LocalDateTime refreshTokenExpiration;	// 리프레시토큰만료일시
+	@CreatedDate
+	private LocalDateTime createdAt;
 }

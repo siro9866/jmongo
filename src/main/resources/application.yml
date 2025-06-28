@@ -15,15 +15,17 @@ spring:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   data:
     mongodb:
-      uri: mongodb://dbuser:dbpassword@localhost:27017/jmongo?authSource=admin
+      uri: ENC(KhEv0KCcbfQKlc/TVlHkqtqXqIecuMlsgzBP7mCBRiPY+XH5+dUlLgBYYL8xaHh/EVVxuSaR7WnVQ8Kp3/GtKEr7934nCEcGQzP0ZERoZJQ=)
+#      uri: mongodb://dbuser:dbpassword@localhost:27017/jmongo?authSource=admin
+      auto-index-creation: true
 
   # MongoDB 연결 실패 시에도 애플리케이션이 계속 시작되도록 허용 여부
   main:
     allow-bean-definition-overriding: true
 
   jwt:
-#    secret: ENC(p+UGISqjN1rTvSRsmxNLIM4v1EELgzL6Lw7H4+LCJT7q5zIdLcohcX8xUjycwcH7PGcZi3lpfuZBzt8elTwJMQ4hzhsAwf1r)   # 토큰 암호화 보안키
-    secret: ThisIsSeowonFrameworkAndThisFrameworkIsBorn20250101ByDev3   # 토큰 암호화 보안키
+    secret: ENC(Mzv3br/Syy1bjZCi5/Mg7AwtgWmIWA1hVHvxy0W0F7XGZE8jdhR5Z4UH9neJyMT6RF/QnGVBZU+JyZKuxpKlOA==)   # 토큰 암호화 보안키
+#    secret: ThisIsSilFrameworkAndThisFrameworkIsBorn2025Bykw   # 토큰 암호화 보안키
     access:
       expiration: 10	# access토큰 만료시간(second)
     refresh:

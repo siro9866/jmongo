@@ -18,7 +18,7 @@ public abstract class Base {
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedBy
-    private String updatedBy;
+    private String modifiedBy;
     @LastModifiedDate
-    private LocalDateTime updatedAt;
+    private LocalDateTime modifiedAt;
 }

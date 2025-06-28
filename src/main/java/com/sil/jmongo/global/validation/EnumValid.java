@@ -3,8 +3,6 @@ package com.sil.jmongo.global.validation;
 /**
  * Enum 으로 저의된 항목 파라미터 validation
  * FileName    : IntelliJ IDEA
- * Author      : Seowon
- * Date        : 2025-02-26
  * Description :
  */
 

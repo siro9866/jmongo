@@ -14,10 +14,12 @@ class JasyptConfigTest {
     @DisplayName("비밀번호 암호화")
     public void passwordEncode(){
 
-        String secret = "ThisIsSeowonFrameworkAndThisFrameworkIsBorn20250101ByDev3";
+        String dbinfo = "mongodb://dbuser:dbpassword@localhost:27017/jmongo?authSource=admin";
+        String secret = "ThisIsSilFrameworkAndThisFrameworkIsBorn2025Bykw";
 
         System.out.println("key = " + key);
-        System.out.println("secret =" + jasyptEncoding(secret));
+        System.out.println("dbinfo:" + jasyptEncoding(dbinfo));
+        System.out.println("secret:" + jasyptEncoding(secret));
     }
 
     public String jasyptEncoding(String value) {

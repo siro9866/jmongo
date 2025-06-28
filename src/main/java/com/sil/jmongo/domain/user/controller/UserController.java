@@ -2,6 +2,8 @@ package com.sil.jmongo.domain.user.controller;
 
 import com.sil.jmongo.domain.user.dto.UserDto;
 import com.sil.jmongo.domain.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
+@Tag(name = "사용자", description = "사용자 API")
 public class UserController {
 
     private final UserService userService;
@@ -28,6 +31,7 @@ public class UserController {
         return "users";
     }
 
+    @Operation(summary = "회원상세", description = "회원상세")
     @GetMapping("/{username}")
     @ResponseBody
     public ResponseEntity<UserDto.Response> getUserByUsername(@PathVariable String username) {

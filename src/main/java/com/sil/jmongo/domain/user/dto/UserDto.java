@@ -1,9 +1,15 @@
 package com.sil.jmongo.domain.user.dto;
 
 import com.sil.jmongo.domain.user.entity.User;
+import com.sil.jmongo.global.code.RoleCode;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
+
+import static com.sil.jmongo.global.validation.ValidationPatterns.EMAIL_FORMAT;
 
 public class UserDto {
 
@@ -14,12 +20,21 @@ public class UserDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateRequest {
+
+        @NotBlank @Size(max = 20)
         private String username;    // 아이디
+
+        @NotBlank @Size(max = 20)
         private String password;    // 비밀번호
+
+        @NotBlank @Size(max = 50)
         private String name;        // 이름
+
+        @NotBlank
+        @Pattern(regexp = EMAIL_FORMAT, message = "{validation.email}")
         private String email;       // 이메일
-        private String role;        // 롤
-        private LocalDateTime joinAt; // 가입일시
+
+        private String role = RoleCode.ROLE_USER.name();        // 롤
 
         public User toEntity() {
             return User.builder()
@@ -28,7 +43,7 @@ public class UserDto {
                     .name(name)
                     .email(email)
                     .role(role)
-                    .joinAt(joinAt)
+                    .joinAt(LocalDateTime.now())
                     .build();
         }
     }
@@ -52,8 +67,8 @@ public class UserDto {
 
         private String createdBy;
         private LocalDateTime createdAt;
-        private String updatedBy;
-        private LocalDateTime updatedAt;
+        private String modifiedBy;
+        private LocalDateTime modifiedAt;
 
         public static Response toDto(User user) {
             return Response.builder()
@@ -66,8 +81,8 @@ public class UserDto {
                     .signAt(user.getSignAt())
                     .createdBy(user.getCreatedBy())
                     .createdAt(user.getCreatedAt())
-                    .updatedBy(user.getUpdatedBy())
-                    .updatedAt(user.getUpdatedAt())
+                    .modifiedBy(user.getModifiedBy())
+                    .modifiedAt(user.getModifiedAt())
                     .enabled(user.isEnabled())
                     .build();
         }
