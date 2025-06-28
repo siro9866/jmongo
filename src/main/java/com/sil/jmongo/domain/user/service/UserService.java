@@ -3,8 +3,6 @@ package com.sil.jmongo.domain.user.service;
 import com.sil.jmongo.domain.user.dto.UserDto;
 import com.sil.jmongo.domain.user.entity.User;
 import com.sil.jmongo.domain.user.repository.UserRepository;
-import com.sil.jmongo.global.response.ApiResponseFail;
-import com.sil.jmongo.global.response.ResponseCode;
 import com.sil.jmongo.global.util.UtilCommon;
 import com.sil.jmongo.global.util.UtilMessage;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +11,6 @@ import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,24 +31,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UtilMessage utilMessage;
 
-    public UserDto.Response createUser(UserDto.CreateRequest userDto) {
-        if (userRepository.existsByUsername(userDto.getUsername())) {
-            throw new RuntimeException(utilMessage.getMessage("duplicate.username", null));
-        }
 
-        // 엔티티로 변환하기 전에 비밀번호 암호화
-        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        User savedUser = userRepository.save(userDto.toEntity());
-        return UserDto.Response.toDto(savedUser);
-    }
-
-
-    public Page<UserDto.Response> getUserList(UserDto.Search search) {
-//        Sort.Direction direction = isDesc ? Sort.Direction.DESC : Sort.Direction.ASC;
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
-//        Page<User> userPage = userRepository.findAll(pageable);
-//        return userPage.map(UserDto.Response::toDto);
-
+    /**
+     * 목록
+     * @param search
+     * @return
+     */
+    public Page<UserDto.Response> listUser(UserDto.Search search) {
         Query query = new Query();
 
         // 🔍 키워드 like 검색 (username, email, name 중 하나라도 포함)
@@ -92,16 +77,63 @@ public class UserService {
 
     }
 
-    public UserDto.Response getUserDetail(String username) {
+    /**
+     * 상세
+     * @param username
+     * @return
+     */
+    public UserDto.Response detailUser(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException(utilMessage.getMessage("notfound.data.one", new String[] { username })));
         return UserDto.Response.toDto(user);
     }
 
-    // 사용자전체 조회하기
-    public List<UserDto.Response> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(UserDto.Response::toDto)
-                .collect(Collectors.toList());
+    /**
+     * 등록
+     * @param request
+     * @return
+     */
+    public UserDto.Response createUser(UserDto.CreateRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new RuntimeException(utilMessage.getMessage("duplicate.username", null));
+        }
+
+        // 엔티티로 변환하기 전에 비밀번호 암호화
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+        User savedUser = userRepository.save(request.toEntity());
+        return UserDto.Response.toDto(savedUser);
     }
+
+    /**
+     * 수정
+     * @param username
+     * @param request
+     */
+    public void modifyUser(String username, UserDto.ModifyRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(utilMessage.getMessage("notfound.data.one", new String[] { username })));
+        request.modifyUser(user);
+
+        // MongoDB에 명시적으로 저장
+        userRepository.save(user);
+    }
+
+    /**
+     * 삭제
+     * @param username
+     */
+    public void deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(utilMessage.getMessage("notfound.data.one", new String[] { username })));
+        userRepository.deleteById(user.getId());
+    }
+
+
+
+    // 사용자전체 조회하기
+//    public List<UserDto.Response> getAllUsers() {
+//        return userRepository.findAll().stream()
+//                .map(UserDto.Response::toDto)
+//                .collect(Collectors.toList());
+//    }
 }

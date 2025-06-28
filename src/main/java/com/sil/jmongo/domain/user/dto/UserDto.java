@@ -42,6 +42,9 @@ public class UserDto {
 
     }
 
+    /**
+     * 등록
+     */
     @Getter
     @Setter
     @ToString
@@ -76,6 +79,30 @@ public class UserDto {
                     .role(role)
                     .joinAt(LocalDateTime.now())
                     .build();
+        }
+    }
+
+    /**
+     * 수정
+     */
+    @Getter
+    @Setter
+    @ToString
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ModifyRequest {
+
+        @NotBlank @Size(max = 50)
+        private String name;        // 이름
+
+        @NotBlank
+        @Pattern(regexp = EMAIL_FORMAT, message = "{validation.email}")
+        private String email;       // 이메일
+
+        public void modifyUser(User user) {
+            user.setName(this.name);
+            user.setEmail(this.email);
         }
     }
 

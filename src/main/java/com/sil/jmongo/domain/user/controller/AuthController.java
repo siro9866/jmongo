@@ -21,11 +21,11 @@ public class AuthController {
     private final UserService userService;
 
     @Operation(summary = "회원가입", description = "회원가입")
-    @PostMapping("/register")
-    public ResponseEntity<UserDto.Response> register(@ParameterObject @ModelAttribute @Valid UserDto.CreateRequest userRequest) {
+    @PostMapping("/signup")
+    public ResponseEntity<UserDto.Response> signup(@ParameterObject @ModelAttribute @Valid UserDto.CreateRequest request) {
         // SWAGGER에 form타입으로 나오려고 위처럼변경함 @RequestBody @Valid UserDto.CreateRequest
-        log.debug(userRequest.toString());
-        UserDto.Response response = userService.createUser(userRequest);
+        log.debug(request.toString());
+        UserDto.Response response = userService.createUser(request);
         return ResponseEntity.ok(response);
     }
 }
