@@ -80,3 +80,9 @@ custom:
     host:
       api: http://localhost:8080
       front: http://localhost:3000
+
+  file:
+    board:
+#      dir: /Users/Shared/app/jmongo/upload
+      dir: C:\usr\app\jmongo\upload
+      path: /board

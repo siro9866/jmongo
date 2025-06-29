@@ -9,8 +9,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -36,17 +40,21 @@ public class BoardController {
     }
 
     @Operation(summary = "게시판등록", description = "게시판등록")
-    @PostMapping
-    public ResponseEntity<BoardDto.Response> createBoard(@ParameterObject @ModelAttribute @Valid BoardDto.CreateRequest request) {
-        BoardDto.Response board = boardService.createBoard(request);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<BoardDto.Response> createBoard(
+            @ParameterObject @RequestPart @ModelAttribute @Valid BoardDto.CreateRequest request,
+            @RequestPart(name = "files", required = false) MultipartFile[] files
+    ) throws IOException {
+        BoardDto.Response board = boardService.createBoard(request, files);
         return ResponseEntity.ok(board);
     }
 
     @Operation(summary = "게시판수정", description = "게시판수정")
-    @PutMapping("/{id}")
+    @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<BoardDto.Response> modifyBoard(@PathVariable String id
-    , @ParameterObject @ModelAttribute @Valid BoardDto.ModifyRequest request) {
-        boardService.modifyBoard(id, request);
+        , @ParameterObject @ModelAttribute @Valid BoardDto.ModifyRequest request
+        , @RequestPart(name = "files", required = false) MultipartFile[] files) throws IOException {
+        boardService.modifyBoard(id, request, files);
         return ResponseEntity.ok(null);
     }
 

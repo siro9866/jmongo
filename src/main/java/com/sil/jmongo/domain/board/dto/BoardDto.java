@@ -1,6 +1,7 @@
 package com.sil.jmongo.domain.board.dto;
 
 import com.sil.jmongo.domain.board.entity.Board;
+import com.sil.jmongo.domain.file.dto.FileDto;
 import com.sil.jmongo.global.code.BoardType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class BoardDto {
     /**
@@ -54,6 +56,9 @@ public class BoardDto {
         @NotBlank
         private String content;    // 내용
 
+        @Schema(description = "파일")
+        private String[] fileIds;		// 파일아이디
+
         public void modifyBoard(Board board) {
             board.setTitle(this.title);
             board.setContent(this.content);
@@ -74,6 +79,8 @@ public class BoardDto {
         private LocalDateTime createdAt;
         private String modifiedBy;
         private LocalDateTime modifiedAt;
+
+        private List<FileDto.Response> files;
 
         public static BoardDto.Response toDto(Board board) {
             return BoardDto.Response.builder()
