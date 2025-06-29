@@ -60,7 +60,7 @@ public class BoardController {
 
     @Operation(summary = "게시판삭제", description = "게시판삭제")
     @DeleteMapping("/{id}")
-    public ResponseEntity<BoardDto.Response> deleteBoard(@PathVariable String id) {
+    public ResponseEntity<BoardDto.Response> deleteBoard(@PathVariable String id) throws IOException {
         boardService.deleteBoard(id);
         return ResponseEntity.ok(null);
     }

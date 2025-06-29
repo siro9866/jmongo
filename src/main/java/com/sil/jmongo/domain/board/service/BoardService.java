@@ -162,9 +162,15 @@ public class BoardService {
      * 삭제
      * @param id
      */
-    public void deleteBoard(String id) {
+    public void deleteBoard(String id) throws IOException {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
         boardRepository.deleteById(board.getId());
+
+        // 파일 삭제
+        FileDto.DeleteRequest fileDeleteRequest = new FileDto.DeleteRequest();
+        fileDeleteRequest.setParentType(ParentType.BOARD);
+        fileDeleteRequest.setParentId(board.getId());
+        fileService.deleteAllFile(fileDeleteRequest);
     }
 }

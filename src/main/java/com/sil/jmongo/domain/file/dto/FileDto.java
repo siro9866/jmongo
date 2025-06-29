@@ -94,6 +94,7 @@ public class FileDto {
         private String id;
         @NotBlank
         private ParentType parentType;  // 파일대상 게시판
+        private String parentId;    // 파일대상 게시판 아이디
     }
 
     /**

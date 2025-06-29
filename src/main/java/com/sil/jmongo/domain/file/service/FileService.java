@@ -62,9 +62,9 @@ public class FileService {
      * @return
      */
     public FileDto.Response detailFile(String id) {
-        File board = fileRepository.findById(id)
+        File file = fileRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
-        return FileDto.Response.toDto(board);
+        return FileDto.Response.toDto(file);
     }
 
     /**
@@ -124,9 +124,9 @@ public class FileService {
      * @param request
      */
     public void deleteFile(FileDto.DeleteRequest request) throws IOException {
-        File board = fileRepository.findById(request.getId())
+        File file = fileRepository.findById(request.getId())
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
-        fileRepository.deleteById(board.getId());
+        fileRepository.deleteById(file.getId());
 
         // 물리 파일저장경로
         String file_dir;
@@ -138,7 +138,35 @@ public class FileService {
         }
 
         // 실제파일삭제
-        Path filePath = Paths.get(file_dir + board.getUploadPath() + java.io.File.separator + board.getSysFileName());
+        Path filePath = Paths.get(file_dir + file.getUploadPath() + java.io.File.separator + file.getSysFileName());
         Files.deleteIfExists(filePath);
+    }
+
+    /**
+     * 삭제
+     * @param request
+     */
+    public void deleteAllFile(FileDto.DeleteRequest request) throws IOException {
+        List<File> files = fileRepository.findByParentTypeAndParentId(request.getParentType().name(), request.getParentId());
+        fileRepository.deleteAll(files);
+
+        // 물리 파일저장경로
+        String file_dir;
+        String file_path;
+        if (Objects.requireNonNull(request.getParentType()).equals(ParentType.BOARD)) {
+            file_dir = FILE_BOARD_DIR;
+        } else {
+            file_dir = FILE_BOARD_DIR;
+        }
+
+        // 실제파일삭제
+        files.forEach(file -> {
+            Path filePath = Paths.get(file_dir + file.getUploadPath() + java.io.File.separator + file.getSysFileName());
+            try {
+                Files.deleteIfExists(filePath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }
