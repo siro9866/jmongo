@@ -9,11 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -34,6 +36,7 @@ public class SecurityConfig {
 	private final ObjectMapper objectMapper;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+	private final UserDetailsService userDetailsService; // 추가
 
 	@Value("${custom.server.host.front}") String HOST_FRONT;
 
@@ -82,11 +85,15 @@ public class SecurityConfig {
 		http
 			.httpBasic(AbstractHttpConfigurer::disable);
 
+		// AuthenticationProvider 설정 추가
+		http.authenticationProvider(authenticationProvider());
+
+
 		// url 접근 허용
 		http
 			.authorizeHttpRequests((auth) -> auth
 					.requestMatchers(
-							"/join"
+							"/api/auth/*"
 							, "/login"
 							, "/reIssue"
 
@@ -112,7 +119,7 @@ public class SecurityConfig {
 		http
 			.addFilterBefore(new JwtFilter(jwtUtil, utilMessage), LoginFilter.class);
 		http
-			.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, tokenRepository, objectMapper, utilMessage), UsernamePasswordAuthenticationFilter.class);	// addFilterAt 는 기존 필터의 위치에 대체하겠다는 거임
+			.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil,tokenRepository,objectMapper,utilMessage),UsernamePasswordAuthenticationFilter.class);	// addFilterAt 는 기존 필터의 위치에 대체하겠다는 거임
 		http
 			.addFilterBefore(new LogoutFilterCustom(jwtUtil, tokenRepository), LogoutFilter.class);
 		
@@ -123,4 +130,14 @@ public class SecurityConfig {
 		
 		return http.build();
 	}
+
+	// AuthenticationProvider Bean 추가
+	@Bean
+	public DaoAuthenticationProvider authenticationProvider() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setUserDetailsService(userDetailsService);
+		provider.setPasswordEncoder(bCryptPasswordEncoder());
+		return provider;
+	}
+
 }

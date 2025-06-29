@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,4 +29,18 @@ public class AuthController {
         UserDto.Response response = userService.createUser(request);
         return ResponseEntity.ok(response);
     }
+
+//    @Operation(summary = "로그인", description = "사용자 로그인")
+//    @PostMapping("/login")
+//    public ResponseEntity<Void> login(@RequestBody UserDto.LoginRequest request) {
+//        // Spring Security에서 처리하므로 여기선 더미 응답
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//    }
+//
+//    @Operation(summary = "로그아웃", description = "사용자 로그아웃")
+//    @PostMapping("/logout")
+//    public ResponseEntity<Void> logout() {
+//        return ResponseEntity.ok().build();
+//    }
+
 }

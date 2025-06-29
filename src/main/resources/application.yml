@@ -54,7 +54,7 @@ springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
   paths-to-match:
-  show-login-endpoint: true	# 로그인은 security UsernamePasswordAuthenticationFilter라 실제url 이 없어서 swagger에 나타나도록 설정
+  show-login-endpoint: false	# 로그인은 security UsernamePasswordAuthenticationFilter라 실제url 이 없어서 swagger에 나타나도록 설정
   override-with-generic-response: false # restcontrollerAdvice 와 관련 오류나서 처리(버전 많이탄다 boot와 swagger 버전 호환 확인필수)
 
 
@@ -65,6 +65,9 @@ logging:
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 
 custom:
+  url:
+    login: /api/auth/login  # 로그인url 설정
+
   format:
     date: yyyy-MM-dd
     dateStr: yyyyMMdd
@@ -78,7 +81,7 @@ custom:
 
   server:
     host:
-      api: http://localhost:8080
+      api: http://localhost:8080    # swagger 등에서 사용
       front: http://localhost:3000
 
   file:

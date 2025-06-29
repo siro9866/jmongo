@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -45,8 +46,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final Long JWT_ACCESS_EXPIRATION = Long.valueOf(UtilProperty.getProperty("spring.jwt.access.expiration"));
     private final Long JWT_REFRESH_EXPIRATION = Long.valueOf(UtilProperty.getProperty("spring.jwt.refresh.expiration"));
+    private final String LOGIN_URL = UtilProperty.getProperty("custom.url.login");
 
-    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, TokenRepository tokenRepository, ObjectMapper objectMapper, UtilMessage utilMessage) {
+    public LoginFilter(
+            AuthenticationManager authenticationManager,
+            JwtUtil jwtUtil,
+            TokenRepository tokenRepository,
+            ObjectMapper objectMapper,
+            UtilMessage utilMessage) {
+
+        super.setFilterProcessesUrl(LOGIN_URL); // 로그인 URL 설정
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.tokenRepository = tokenRepository;
@@ -54,18 +63,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.utilMessage = utilMessage;
     }
 
-    /**
-     * 로그인을 위한 인증
-     */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        // 클라이언트 요청에서 id, password 추출
         String username = "";
         String password = "";
 
         try {
-            // 로그인시 입력받을 필드
-            UserDto.LoginRequest loginRequestDto = objectMapper.readValue(StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8), UserDto.LoginRequest.class);
+            UserDto.LoginRequest loginRequestDto = objectMapper.readValue(
+                    StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8),
+                    UserDto.LoginRequest.class
+            );
             username = loginRequestDto.getUsername();
             password = loginRequestDto.getPassword();
             log.debug("로그인정보:{}", loginRequestDto);
@@ -77,60 +84,44 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             log.error("이건 언제터지지(IOException)");
         }
 
-
-        // 시큐리티에서 id, pw 를 검증하기 위해서는 token에 담아야 함
         log.debug("before: {}", username + ":" + password);
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
         log.debug("after: {}", authToken);
 
-        // 토큰에 담은 값을 검증 하기위해 AuthenticationManager로 전달
         return authenticationManager.authenticate(authToken);
     }
 
-    /**
-     * 로그인 성공시실행하는 메서드(여기서 JWT를 발급하면 됨)
-     */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
-        // 유저정보
         String username = authResult.getName();
 
-        // role
         Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
-        String meberRole = auth.getAuthority();
+        String memberRole = auth.getAuthority();
 
-        // 토큰생성
-        String accessToken = jwtUtil.createJwt("accessToken", username, meberRole, JWT_ACCESS_EXPIRATION * 1000L);
-        String refreshToken = jwtUtil.createJwt("refreshToken", username, meberRole, JWT_REFRESH_EXPIRATION * 1000L);
+        String accessToken = jwtUtil.createJwt("accessToken", username, memberRole, JWT_ACCESS_EXPIRATION * 1000L);
+        String refreshToken = jwtUtil.createJwt("refreshToken", username, memberRole, JWT_REFRESH_EXPIRATION * 1000L);
 
-        // refresh 토큰 삭제
         tokenRepository.deleteByUsername(username);
 
-        // refresh 토큰 저장
         TokenDto.CreateRequest createRequestDto = new TokenDto.CreateRequest();
         createRequestDto.setUsername(username);
         createRequestDto.setRefreshToken(refreshToken);
         createRequestDto.setRefreshTokenExpiration(LocalDateTime.now().plusSeconds(JWT_REFRESH_EXPIRATION));
         tokenRepository.save(createRequestDto.toEntity());
 
-        // 응답설정
-        response.setHeader("accessToken", accessToken);                    // access 토큰은 헤더로 내려줌
-        response.addCookie(UtilCommon.createCookie("refreshToken", refreshToken));    // refresh 토큰은 쿠키에 저장
-
+        response.setHeader("accessToken", accessToken);
+        response.addCookie(UtilCommon.createCookie("refreshToken", refreshToken));
 
         response.setStatus(HttpStatus.OK.value());
         response.setContentType("application/json;charset=UTF-8");
 
         Map<String, Object> responseBody = new HashMap<>();
-//        responseBody.put("data", null);
-
         PrintWriter writer = response.getWriter();
         writer.write(new ObjectMapper().writeValueAsString(responseBody));
         writer.flush();
         writer.close();
-
     }
 
     /**
@@ -138,7 +129,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
-        GlobalExceptionHandler.filterExceptionHandler(response, HttpStatus.REQUEST_HEADER_FIELDS_TOO_LARGE, ResponseCode.LOGIN_FAIL, utilMessage.getMessage("login.fail", null));
+        GlobalExceptionHandler.filterExceptionHandler(
+                response,
+                HttpStatus.REQUEST_HEADER_FIELDS_TOO_LARGE,
+                ResponseCode.LOGIN_FAIL,
+                utilMessage.getMessage("login.fail", null)
+        );
     }
-
 }

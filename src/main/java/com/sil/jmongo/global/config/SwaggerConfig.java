@@ -37,6 +37,7 @@ import java.util.Optional;
 public class SwaggerConfig {
 
 	@Value("${custom.server.host.api}") String HOST_API;
+	@Value("${custom.url.login}") String LOGIN_URL;
 
 	private final ApplicationContext applicationContext;
 	
@@ -96,10 +97,15 @@ public class SwaggerConfig {
 				.addOpenApiCustomizer(springSecurityLoginEndpointCustomizer(applicationContext))
 				.build();
 	}
-	
+
+
 	@Bean
 	OpenApiCustomizer springSecurityLoginEndpointCustomizer(ApplicationContext applicationContext) {
-		FilterChainProxy filterChainProxy = applicationContext.getBean(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME, FilterChainProxy.class);
+		FilterChainProxy filterChainProxy = applicationContext.getBean(
+				AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
+				FilterChainProxy.class
+		);
+
 		return openAPI -> {
 			for (SecurityFilterChain filterChain : filterChainProxy.getFilterChains()) {
 				Optional<UsernamePasswordAuthenticationFilter> optionalFilter =
@@ -107,30 +113,43 @@ public class SwaggerConfig {
 								.filter(UsernamePasswordAuthenticationFilter.class::isInstance)
 								.map(UsernamePasswordAuthenticationFilter.class::cast)
 								.findAny();
+
 				if (optionalFilter.isPresent()) {
 					Operation operation = new Operation();
 					Schema<?> schema = new ObjectSchema()
-							.addProperty("username", new StringSchema()._default("admin"))
-							.addProperty("password", new StringSchema()._default("1234"));
-					RequestBody requestBody = new RequestBody().content(new Content().addMediaType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE, new MediaType().schema(schema)));
+							.addProperty("username", new StringSchema().example("admin"))
+							.addProperty("password", new StringSchema().example("1234"));
+
+					RequestBody requestBody = new RequestBody()
+							.content(new Content()
+									.addMediaType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
+											new MediaType().schema(schema)));
+
 					operation.requestBody(requestBody);
+					operation.addTagsItem("Auth"); // Auth 태그로 변경
+					operation.summary("로그인");
+					operation.description("사용자 로그인");
+
 					ApiResponses apiResponses = new ApiResponses();
 					apiResponses.addApiResponse(String.valueOf(HttpStatus.OK.value()),
-							new ApiResponse().description(HttpStatus.OK.getReasonPhrase())
-									.content(new Content().addMediaType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
-											new MediaType().example("{\"token\":\"sample-jwt-token\"}"))));
+							new ApiResponse().description("로그인 성공")
+									.content(new Content()
+											.addMediaType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
+													new MediaType()
+															.schema(new Schema<>()
+																	.$ref("UserDto.LoginResponse")))));
 
 					apiResponses.addApiResponse(String.valueOf(HttpStatus.UNAUTHORIZED.value()),
-							new ApiResponse().description(HttpStatus.UNAUTHORIZED.getReasonPhrase())
-									.content(new Content().addMediaType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
-											new MediaType().example("{\"error\":\"UNAUTHORIZED\"}"))));
+							new ApiResponse().description("로그인 실패")
+									.content(new Content()
+											.addMediaType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
+													new MediaType()
+															.example("{\"code\":\"LOGIN_FAIL\",\"message\":\"로그인에 실패했습니다.\"}"))));
 
 					operation.responses(apiResponses);
-					operation.addTagsItem("로그인");
-					operation.summary("로그인");
 
 					PathItem pathItem = new PathItem().post(operation);
-					openAPI.getPaths().addPathItem("/login", pathItem);
+					openAPI.getPaths().addPathItem(LOGIN_URL, pathItem);
 				}
 			}
 		};
