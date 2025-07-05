@@ -1,10 +1,10 @@
 package com.sil.jmongo.domain.board.service;
 
+import com.sil.jmongo.domain.attachment.service.AttachmentService;
 import com.sil.jmongo.domain.board.dto.BoardDto;
 import com.sil.jmongo.domain.board.entity.Board;
 import com.sil.jmongo.domain.board.repository.BoardRepository;
-import com.sil.jmongo.domain.file.dto.FileDto;
-import com.sil.jmongo.domain.file.service.FileService;
+import com.sil.jmongo.domain.attachment.dto.AttachmentDto;
 import com.sil.jmongo.global.code.ParentType;
 import com.sil.jmongo.global.exception.CustomException;
 import com.sil.jmongo.global.response.ResponseCode;
@@ -19,16 +19,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,7 +33,7 @@ public class BoardService {
 
     private final MongoTemplate mongoTemplate;
     private final BoardRepository boardRepository;
-    private final FileService fileService;
+    private final AttachmentService attachmentService;
     private final UtilMessage utilMessage;
 
     /**
@@ -46,7 +41,7 @@ public class BoardService {
      * @param search
      * @return
      */
-    public Page<BoardDto.Response> listBoard(BoardDto.Search search) {
+    public Page<BoardDto.Response> boardList(BoardDto.Search search) {
         Query query = new Query();
 
         // 🔍 키워드 like 검색 (boardname, email, name 중 하나라도 포함)
@@ -89,17 +84,17 @@ public class BoardService {
      * @param id
      * @return
      */
-    public BoardDto.Response detailBoard(String id) {
+    public BoardDto.Response boardDetail(String id) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
         BoardDto.Response response = BoardDto.Response.toDto(board);
 
-        FileDto.Search fileSearch = new FileDto.Search();
+        AttachmentDto.Search fileSearch = new AttachmentDto.Search();
         fileSearch.setParentType(ParentType.BOARD);
         fileSearch.setParentId(board.getId());
-        List<FileDto.Response> files = fileService.listFile(fileSearch);
+        List<AttachmentDto.Response> attachments = attachmentService.attachmentList(fileSearch);
 
-        response.setFiles(files);
+        response.setAttachments(attachments);
         return response;
     }
 
@@ -108,16 +103,16 @@ public class BoardService {
      * @param request
      * @return
      */
-    public BoardDto.Response createBoard(BoardDto.CreateRequest request, MultipartFile[] mFiles) throws IOException {
+    public BoardDto.Response boardCreate(BoardDto.CreateRequest request, MultipartFile[] mFiles) throws IOException {
         Board board = boardRepository.save(request.toEntity());
 
         // 파일저장
         if(UtilCommon.isNotEmpty(mFiles)) {
-            FileDto.CreateBaseRequest baseRequest = new FileDto.CreateBaseRequest();
+            AttachmentDto.CreateBaseRequest baseRequest = new AttachmentDto.CreateBaseRequest();
             baseRequest.setParentType(ParentType.BOARD);
             baseRequest.setParentId(board.getId());
 
-            fileService.createFile(baseRequest, mFiles);
+            attachmentService.attachmentCreate(baseRequest, mFiles);
         }
 
         return BoardDto.Response.toDto(board);
@@ -128,49 +123,50 @@ public class BoardService {
      * @param id
      * @param request
      */
-    public void modifyBoard(String id, BoardDto.ModifyRequest request, MultipartFile[] mFiles) throws IOException {
+    public BoardDto.Response boardModify(String id, BoardDto.ModifyRequest request, MultipartFile[] attachments) throws IOException {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
-        request.modifyBoard(board);
+        request.boardModify(board);
 
         // MongoDB에 명시적으로 저장
         boardRepository.save(board);
 
         // UI상에서 삭제된 파일은 삭제처리해야함
         // 파일정보삭제
-        FileDto.DeleteRequest fileDeleteRequest;
-        if(UtilCommon.isNotEmpty(request.getFileIds())) {
-            for(String fileId : request.getFileIds()) {
-                fileDeleteRequest = new FileDto.DeleteRequest();
-                fileDeleteRequest.setParentType(ParentType.BOARD);
-                fileDeleteRequest.setId(fileId);
-                fileService.deleteFile(fileDeleteRequest);
+        AttachmentDto.DeleteRequest attachmentDeleteRequest;
+        if(UtilCommon.isNotEmpty(request.getAttachmentIds())) {
+            for(String attachmentId : request.getAttachmentIds()) {
+                attachmentDeleteRequest = new AttachmentDto.DeleteRequest();
+                attachmentDeleteRequest.setParentType(ParentType.BOARD);
+                attachmentDeleteRequest.setId(attachmentId);
+                attachmentService.attachmentDelete(attachmentDeleteRequest);
             }
         }
 
         // 파일저장
-        if(UtilCommon.isNotEmpty(mFiles)) {
-            FileDto.CreateBaseRequest baseRequest = new FileDto.CreateBaseRequest();
+        if(UtilCommon.isNotEmpty(attachments)) {
+            AttachmentDto.CreateBaseRequest baseRequest = new AttachmentDto.CreateBaseRequest();
             baseRequest.setParentType(ParentType.BOARD);
             baseRequest.setParentId(board.getId());
 
-            fileService.createFile(baseRequest, mFiles);
+            attachmentService.attachmentCreate(baseRequest, attachments);
         }
+        return BoardDto.Response.toDto(board);
     }
 
     /**
      * 삭제
      * @param id
      */
-    public void deleteBoard(String id) throws IOException {
+    public void boardDelete(String id) throws IOException {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
         boardRepository.deleteById(board.getId());
 
         // 파일 삭제
-        FileDto.DeleteRequest fileDeleteRequest = new FileDto.DeleteRequest();
-        fileDeleteRequest.setParentType(ParentType.BOARD);
-        fileDeleteRequest.setParentId(board.getId());
-        fileService.deleteAllFile(fileDeleteRequest);
+        AttachmentDto.DeleteRequest attachmentDeleteRequest = new AttachmentDto.DeleteRequest();
+        attachmentDeleteRequest.setParentType(ParentType.BOARD);
+        attachmentDeleteRequest.setParentId(board.getId());
+        attachmentService.attachmentDeleteAll(attachmentDeleteRequest);
     }
 }

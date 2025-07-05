@@ -1,4 +1,4 @@
-package com.sil.jmongo.domain.file.entity;
+package com.sil.jmongo.domain.attachment.entity;
 
 import com.sil.jmongo.global.entity.Base;
 import lombok.*;
@@ -13,8 +13,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "file")
-public class File extends Base {
+@Document(collection = "attachment")
+public class Attachment extends Base {
     @Id
     private String id;
     private String uploadPath;  // 업로드경로

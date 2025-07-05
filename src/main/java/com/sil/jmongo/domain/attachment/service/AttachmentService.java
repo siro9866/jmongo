@@ -1,8 +1,8 @@
-package com.sil.jmongo.domain.file.service;
+package com.sil.jmongo.domain.attachment.service;
 
-import com.sil.jmongo.domain.file.dto.FileDto;
-import com.sil.jmongo.domain.file.entity.File;
-import com.sil.jmongo.domain.file.repository.FileRepository;
+import com.sil.jmongo.domain.attachment.dto.AttachmentDto;
+import com.sil.jmongo.domain.attachment.entity.Attachment;
+import com.sil.jmongo.domain.attachment.repository.AttachmentRepository;
 import com.sil.jmongo.global.code.ParentType;
 import com.sil.jmongo.global.exception.CustomException;
 import com.sil.jmongo.global.response.ResponseCode;
@@ -32,10 +32,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FileService {
+public class AttachmentService {
 
     private final MongoTemplate mongoTemplate;
-    private final FileRepository fileRepository;
+    private final AttachmentRepository attachmentRepository;
     private final UtilMessage utilMessage;
 
     @Value("${custom.format.dateStr}") private String FORMAT_DATESTR;
@@ -49,10 +49,10 @@ public class FileService {
      * @param search
      * @return
      */
-    public List<FileDto.Response> listFile(FileDto.Search search) {
-        List<File> files = fileRepository.findByParentTypeAndParentId(search.getParentType().name(), search.getParentId());
-        return files.stream()
-                .map(FileDto.Response::toDto)
+    public List<AttachmentDto.Response> attachmentList(AttachmentDto.Search search) {
+        List<Attachment> attachments = attachmentRepository.findByParentTypeAndParentId(search.getParentType().name(), search.getParentId());
+        return attachments.stream()
+                .map(AttachmentDto.Response::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -61,10 +61,10 @@ public class FileService {
      * @param id
      * @return
      */
-    public FileDto.Response detailFile(String id) {
-        File file = fileRepository.findById(id)
+    public AttachmentDto.Response attachmentDetail(String id) {
+        Attachment attachment = attachmentRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
-        return FileDto.Response.toDto(file);
+        return AttachmentDto.Response.toDto(attachment);
     }
 
     /**
@@ -72,8 +72,8 @@ public class FileService {
      * @param request
      * @return
      */
-    public List<FileDto.Response> createFile(FileDto.CreateBaseRequest request, MultipartFile[] mFiles) throws IOException {
-        List<FileDto.Response> fileResponses = new ArrayList<>();
+    public List<AttachmentDto.Response> attachmentCreate(AttachmentDto.CreateBaseRequest request, MultipartFile[] mFiles) throws IOException {
+        List<AttachmentDto.Response> attachmentResponses = new ArrayList<>();
 
         // 물리 파일저장경로
         String file_dir;
@@ -88,7 +88,7 @@ public class FileService {
 
         // 파일업로드
         if(UtilCommon.isNotEmpty(mFiles)) {
-            FileDto.CreateRequest createRequest;
+            AttachmentDto.CreateRequest createRequest;
             StringBuilder systemFileName;
             for(MultipartFile mFile : mFiles) {
                 systemFileName = new StringBuilder();
@@ -98,7 +98,7 @@ public class FileService {
                 systemFileName.append(".");
                 systemFileName.append(FilenameUtils.getExtension(mFile.getOriginalFilename()));
 
-                createRequest = new FileDto.CreateRequest();
+                createRequest = new AttachmentDto.CreateRequest();
                 createRequest.setUploadPath(file_path);
                 createRequest.setOrgFileName(mFile.getOriginalFilename());
                 createRequest.setSysFileName(systemFileName.toString());
@@ -106,8 +106,8 @@ public class FileService {
                 createRequest.setParentId(request.getParentId());
 
                 // 파일저장
-                File file = fileRepository.save(createRequest.toEntity());
-                fileResponses.add(FileDto.Response.toDto(file));
+                Attachment attachment = attachmentRepository.save(createRequest.toEntity());
+                attachmentResponses.add(AttachmentDto.Response.toDto(attachment));
 
                 UtilFile.makeFolders(file_dir + file_path);
                 String filePath = file_dir + file_path + java.io.File.separator + systemFileName;
@@ -116,17 +116,17 @@ public class FileService {
             }
         }
 
-        return fileResponses;
+        return attachmentResponses;
     }
 
     /**
      * 삭제
      * @param request
      */
-    public void deleteFile(FileDto.DeleteRequest request) throws IOException {
-        File file = fileRepository.findById(request.getId())
+    public void attachmentDelete(AttachmentDto.DeleteRequest request) throws IOException {
+        Attachment attachment = attachmentRepository.findById(request.getId())
                 .orElseThrow(() -> new CustomException(ResponseCode.EXCEPTION_NODATA, utilMessage.getMessage("notfound.data", null)));
-        fileRepository.deleteById(file.getId());
+        attachmentRepository.deleteById(attachment.getId());
 
         // 물리 파일저장경로
         String file_dir;
@@ -138,7 +138,7 @@ public class FileService {
         }
 
         // 실제파일삭제
-        Path filePath = Paths.get(file_dir + file.getUploadPath() + java.io.File.separator + file.getSysFileName());
+        Path filePath = Paths.get(file_dir + attachment.getUploadPath() + java.io.File.separator + attachment.getSysFileName());
         Files.deleteIfExists(filePath);
     }
 
@@ -146,9 +146,9 @@ public class FileService {
      * 삭제
      * @param request
      */
-    public void deleteAllFile(FileDto.DeleteRequest request) throws IOException {
-        List<File> files = fileRepository.findByParentTypeAndParentId(request.getParentType().name(), request.getParentId());
-        fileRepository.deleteAll(files);
+    public void attachmentDeleteAll(AttachmentDto.DeleteRequest request) throws IOException {
+        List<Attachment> attachments = attachmentRepository.findByParentTypeAndParentId(request.getParentType().name(), request.getParentId());
+        attachmentRepository.deleteAll(attachments);
 
         // 물리 파일저장경로
         String file_dir;
@@ -160,8 +160,8 @@ public class FileService {
         }
 
         // 실제파일삭제
-        files.forEach(file -> {
-            Path filePath = Paths.get(file_dir + file.getUploadPath() + java.io.File.separator + file.getSysFileName());
+        attachments.forEach(attachment -> {
+            Path filePath = Paths.get(file_dir + attachment.getUploadPath() + java.io.File.separator + attachment.getSysFileName());
             try {
                 Files.deleteIfExists(filePath);
             } catch (IOException e) {

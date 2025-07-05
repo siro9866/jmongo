@@ -1,7 +1,8 @@
 package com.sil.jmongo.domain.board.dto;
 
+import com.sil.jmongo.domain.attachment.dto.AttachmentDto;
 import com.sil.jmongo.domain.board.entity.Board;
-import com.sil.jmongo.domain.file.dto.FileDto;
+import com.sil.jmongo.domain.attachment.dto.AttachmentDto;
 import com.sil.jmongo.global.code.BoardType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -57,9 +58,9 @@ public class BoardDto {
         private String content;    // 내용
 
         @Schema(description = "파일")
-        private String[] fileIds;		// 파일아이디
+        private String[] attachmentIds;		// 파일아이디
 
-        public void modifyBoard(Board board) {
+        public void boardModify(Board board) {
             board.setTitle(this.title);
             board.setContent(this.content);
         }
@@ -80,7 +81,7 @@ public class BoardDto {
         private String modifiedBy;
         private LocalDateTime modifiedAt;
 
-        private List<FileDto.Response> files;
+        private List<AttachmentDto.Response> attachments;
 
         public static BoardDto.Response toDto(Board board) {
             return BoardDto.Response.builder()
