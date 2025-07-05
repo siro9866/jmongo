@@ -1,6 +1,5 @@
 package com.sil.jmongo.domain.board.service;
 
-import com.sil.jmongo.domain.board.dto.BoardDto;
 import com.sil.jmongo.domain.board.dto.ReplyDto;
 import com.sil.jmongo.domain.board.entity.Board;
 import com.sil.jmongo.domain.board.entity.Reply;
