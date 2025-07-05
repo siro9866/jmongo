@@ -1,7 +1,7 @@
 package com.sil.jmongo.global.jwt;
 
 import com.sil.jmongo.domain.user.dto.UserDto;
-import com.sil.jmongo.domain.user.entity.User;
+import com.sil.jmongo.domain.user.entity.Users;
 import com.sil.jmongo.global.exception.GlobalExceptionHandler;
 import com.sil.jmongo.global.response.ResponseCode;
 import com.sil.jmongo.global.security.CustomUserDetails;
@@ -88,7 +88,7 @@ public class JwtFilter extends OncePerRequestFilter{
 		UserDto.LoginResponse loginResponseDto = new UserDto.LoginResponse();
 		loginResponseDto.setUsername(username);
 		loginResponseDto.setRole(role);
-		User entity = loginResponseDto.toEntity();
+		Users entity = loginResponseDto.toEntity();
 		
 		// UserDetails에 회원 정보 객체 담기
 		CustomUserDetails customUserDetails = new CustomUserDetails(entity);

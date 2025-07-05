@@ -31,21 +31,21 @@ public class BoardController {
 
     @Operation(summary = "게시판목록", description = "게시판목록")
     @GetMapping
-    public ResponseEntity<Page<BoardDto.Response>> listBoard(@ParameterObject @ModelAttribute BoardDto.Search search) {
+    public ResponseEntity<Page<BoardDto.Response>> boardList(@ParameterObject @ModelAttribute BoardDto.Search search) {
         Page<BoardDto.Response> boards = boardService.boardList(search);
         return ResponseEntity.status(HttpStatus.OK).body(boards);
     }
 
     @Operation(summary = "게시판상세", description = "게시판상세")
     @GetMapping("/{id}")
-    public ResponseEntity<BoardDto.Response> detailBoard(@PathVariable String id) {
+    public ResponseEntity<BoardDto.Response> boardDetail(@PathVariable String id) {
         BoardDto.Response board = boardService.boardDetail(id);
         return ResponseEntity.status(HttpStatus.OK).body(board);
     }
 
     @Operation(summary = "게시판등록", description = "게시판등록")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<BoardDto.Response>> createBoard(
+    public ResponseEntity<ApiResponse<BoardDto.Response>> boardCreate(
             @ParameterObject @RequestPart @ModelAttribute @Valid BoardDto.CreateRequest request,
             @RequestPart(name = "mFiles", required = false) MultipartFile[] mFiles
     ) throws IOException {
@@ -68,7 +68,7 @@ public class BoardController {
 
     @Operation(summary = "게시판삭제", description = "게시판삭제")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<BoardDto.Response>> deleteBoard(@PathVariable String id) throws IOException {
+    public ResponseEntity<ApiResponse<BoardDto.Response>> boardDelete(@PathVariable String id) throws IOException {
         boardService.boardDelete(id);
         ApiResponse<BoardDto.Response> apiResponse = new ApiResponse<>(utilMessage.getMessage("success.delete", null), null);
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);

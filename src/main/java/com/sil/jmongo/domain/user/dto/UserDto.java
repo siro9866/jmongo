@@ -1,6 +1,6 @@
 package com.sil.jmongo.domain.user.dto;
 
-import com.sil.jmongo.domain.user.entity.User;
+import com.sil.jmongo.domain.user.entity.Users;
 import com.sil.jmongo.global.code.RoleCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -28,8 +28,8 @@ public class UserDto {
         private String username;
         private String role;
 
-        public User toEntity() {
-            return User.builder()
+        public Users toEntity() {
+            return Users.builder()
                     .username(username)
                     .role(role)
                     .build();
@@ -62,8 +62,8 @@ public class UserDto {
         @Schema(description = "권한", example = "ROLE_USER")
         private String role = RoleCode.ROLE_USER.name();        // 롤
 
-        public User toEntity() {
-            return User.builder()
+        public Users toEntity() {
+            return Users.builder()
                     .username(username)
                     .password(password)
                     .name(name)
@@ -88,7 +88,7 @@ public class UserDto {
         @Pattern(regexp = EMAIL_FORMAT, message = "{validation.email}")
         private String email;       // 이메일
 
-        public void modifyUser(User user) {
+        public void modifyUser(Users user) {
             user.setName(this.name);
             user.setEmail(this.email);
         }
@@ -113,7 +113,7 @@ public class UserDto {
         private String modifiedBy;
         private LocalDateTime modifiedAt;
 
-        public static Response toDto(User user) {
+        public static Response toDto(Users user) {
             return Response.builder()
                     .id(user.getId())
                     .username(user.getUsername())

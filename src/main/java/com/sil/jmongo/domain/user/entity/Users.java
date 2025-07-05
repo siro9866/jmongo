@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "users")
-public class User extends Base {
+public class Users extends Base {
 
     @Id
     private String id;
