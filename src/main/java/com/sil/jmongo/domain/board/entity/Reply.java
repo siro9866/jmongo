@@ -13,8 +13,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "comment")
-public class Comment extends Base {
+@Document(collection = "Reply")
+public class Reply extends Base {
     @Id
     private String id;
     private String boardId;     // 게시판 아이디
